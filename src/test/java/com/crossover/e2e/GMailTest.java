@@ -16,10 +16,22 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.relevantcodes.extentreports.ExtentReports;
+import com.relevantcodes.extentreports.ExtentTest;
+import com.relevantcodes.extentreports.LogStatus;
+
 
 public class GMailTest extends TestCase {
      WebDriver driver;
-     
+     String testCasename=this.getClass().getSimpleName();
+		String extentReportFile = System.getProperty("user.dir")
+				
+				+ "\\Report\\"+testCasename+".html";
+     ExtentReports extent = new ExtentReports(extentReportFile, false);
+
+		// Start the test using the ExtentTest class object.
+		ExtentTest extentTest = extent.startTest("Cross Over Automation",
+				"GMAIL");
     private Properties properties = new Properties();
 
     public void setUp() throws Exception {
@@ -42,16 +54,24 @@ public class GMailTest extends TestCase {
     public void testSendEmail() throws Exception {
     	
     	try {
+    		
+			
+			/*String extentReportImage = System.getProperty("user.dir")
+					+ "\\extentReportImage.png";
+*/
+			// Create object of extent report and specify the report file path.
+			
     		 WebDriverWait wait=new WebDriverWait(driver, 20); //Webdriverwait for Explicit Wait
     		    
     	String url=properties.getProperty("url");
         driver.get(url);
         driver.manage().window().maximize() ;
          driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);		//Implicit Wait		
-       
+         extentTest.log(LogStatus.INFO, "Browser Launched");
+			
         WebElement user = webElement(properties.getProperty("userElement"));
         user.sendKeys(properties.getProperty("username"));
-
+    	extentTest.log(LogStatus.INFO, "Entering Username");	
         WebElement pass = webElement(properties.getProperty("passElement"));
         pass.click();
 
@@ -60,31 +80,43 @@ public class GMailTest extends TestCase {
         passwordElement.sendKeys(properties.getProperty("password"));
         
         WebElement PassNext = webElement(properties.getProperty("PassNext"));
-        
+        extentTest.log(LogStatus.INFO, "Entering password");	
         PassNext.click();
-
+        extentTest.log(LogStatus.INFO, "Click SignIn");	
         WebElement composeElement = webElement(properties.getProperty("Compose"));
         wait.until(ExpectedConditions.elementToBeClickable(composeElement));
+        extentTest.log(LogStatus.PASS, "Login Successfull");		
+        
      
         composeElement.click();
+        extentTest.log(LogStatus.INFO, "Click Compose");	
 
         WebElement To = webElement(properties.getProperty("To"));
         
         To.clear();
         To.sendKeys(String.format("%s@gmail.com", properties.getProperty("username")));
-        
+        extentTest.log(LogStatus.INFO, "Enter To Email Address");	
+
      // emailSubject and emailbody to be used in this unit test.
         String emailSubject = properties.getProperty("email.subject");
         String emailBody = properties.getProperty("email.body");
         
         webElement(properties.getProperty("Subject")).sendKeys(emailSubject);
+        extentTest.log(LogStatus.INFO, "Enter Subject");	
         webElement(properties.getProperty("Body")).sendKeys(emailBody);
+        extentTest.log(LogStatus.INFO, "Enter Email Body");	
         
         WebElement MoreOptions = webElement(properties.getProperty("MoreOptions"));
+        extentTest.log(LogStatus.INFO, "Click More Options");	
         
         WebElement Label = webElement(properties.getProperty("Label"));
+       
+        
         
         WebElement Social = webElement(properties.getProperty("SocialCheck"));
+        
+        
+        
         Actions actions = new Actions(driver);
         Thread.sleep(2000);
         
@@ -92,57 +124,52 @@ public class GMailTest extends TestCase {
          Thread.sleep(2000);
          
          MoreOptions.click();
-      // WebElement s=driver.findElement(By.xpath("//iframe[@name='oauth2relay860174152']"));
-        
-     //   driver.switchTo().frame(s);
         
         javascriptExecutorClick(properties.getProperty("MoreOptions"));
      
-       // driver.switchTo().defaultContent();
+      
         wait.until(ExpectedConditions.elementToBeClickable(Label));
+        extentTest.log(LogStatus.INFO, "Click Label");	
         Label.click();
+       
         Thread.sleep(2000);
          
         wait.until(ExpectedConditions.elementToBeClickable(Social));
         Social.click();
-        
+        extentTest.log(LogStatus.INFO, "Click Social");	
         Thread.sleep(2000);
        
         webElement(properties.getProperty("Send")).click();
+        extentTest.log(LogStatus.PASS, "Email Sent");		
         
         Thread.sleep(2000);
-          driver.navigate().refresh();
+          driver.navigate().refresh();// To Avoid Stale ref exception
         
           Thread.sleep(2000);
           WebElement Social1 = webElement(properties.getProperty("Social"));
           wait.until(ExpectedConditions.elementToBeClickable(Social1));
           Social1.click();
+          extentTest.log(LogStatus.INFO, "Click Social Tab");	
           Thread.sleep(5000);
           List<WebElement> inboxEmails = wait.until(ExpectedConditions.visibilityOfAllElements(driver.findElements(By.xpath("//*[@class='zA zE']"))));                   
 
-          for(WebElement email : inboxEmails){                                                                                                                           
-              if(email.isDisplayed() && email.getText().contains("email.subject")){                                                                                                                                   
-                  email.click();                                                                                                                                         
-
-                  WebElement label = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(@title,'with label Inbox')]")));                    
-                  WebElement subject = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h2[contains(text(),'Subject of this message')]")));          
-                  WebElement body = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(text(),'Single line body of the message')]")));   
-
-              }                   
         
         
       
-              Thread.sleep(10000);
+              Thread.sleep(5000);
               try {
             	  WebElement sTAR = webElement(properties.getProperty("NonStar"));
                   wait.until(ExpectedConditions.elementToBeClickable(sTAR));
                   sTAR.click();
+                  extentTest.log(LogStatus.PASS, "Star Clicked");
             	}
             	catch(org.openqa.selenium.StaleElementReferenceException ex)
             	{
             		 WebElement sTAR = webElement(properties.getProperty("NonStar"));
             	        wait.until(ExpectedConditions.elementToBeClickable(sTAR));
             	        sTAR.click();
+                        extentTest.log(LogStatus.PASS, "Star Clicked");
+
             	}
         
        try {
@@ -150,29 +177,40 @@ public class GMailTest extends TestCase {
         WebElement Sub = webElement(properties.getProperty("SubjectToWait"));
         wait.until(ExpectedConditions.elementToBeClickable(Sub));
         Sub.click();//Always Clicks on the First Arrived Email
+        extentTest.log(LogStatus.PASS, "Subject Verified");	
+
        }catch(org.openqa.selenium.StaleElementReferenceException ex)
    	{
     	   WebElement Sub = webElement(properties.getProperty("SubjectToWait"));
            wait.until(ExpectedConditions.elementToBeClickable(Sub));
            Sub.click();//Always Clicks on the First Arrived Email
+           extentTest.log(LogStatus.PASS, "Subject Verified");	
   	}
         
         WebElement VerifySub = webElement(properties.getProperty("VerifySub"));
         wait.until(ExpectedConditions.elementToBeClickable(VerifySub));
         String subject=VerifySub.getText();
         Assert.assertEquals(subject, emailSubject);
+        extentTest.log(LogStatus.PASS, "Email Body Verified");	
        
         WebElement SubBoy = webElement(properties.getProperty("SubBoy"));
         wait.until(ExpectedConditions.elementToBeClickable(SubBoy));
         String body=SubBoy.getText();
         Assert.assertEquals(body, emailBody);
-        
-        
-          }
+       
+    	extentTest.log(LogStatus.INFO, "Browser closed");
+
+		
+      
        
         Thread.sleep(10000);
     	}catch(Exception e)
     	{
+    		// close report.
+    		extent.endTest(extentTest);
+
+    		// writing everything to document.
+    		extent.flush();
     		e.printStackTrace();
     	}
         

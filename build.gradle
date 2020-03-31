@@ -11,6 +11,9 @@ apply plugin: 'java'
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.seleniumhq.selenium:selenium-java:2.41.0'
+    // https://mvnrepository.com/artifact/com.aventstack/extentreports
+	testcompile 'com.aventstack:extentreports:3.0.0'
+    
 }
 
 // In this section you declare where to find the dependencies of your project
