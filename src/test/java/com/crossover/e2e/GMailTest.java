@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
+import org.codehaus.plexus.util.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.*;
@@ -56,10 +58,6 @@ public class GMailTest extends TestCase {
     	try {
     		
 			
-			/*String extentReportImage = System.getProperty("user.dir")
-					+ "\\extentReportImage.png";
-*/
-			// Create object of extent report and specify the report file path.
 			
     		 WebDriverWait wait=new WebDriverWait(driver, 20); //Webdriverwait for Explicit Wait
     		    
@@ -130,7 +128,7 @@ public class GMailTest extends TestCase {
       
         wait.until(ExpectedConditions.elementToBeClickable(Label));
         extentTest.log(LogStatus.INFO, "Click Label");	
-        Label.click();
+      //  Label.click();
        
         Thread.sleep(2000);
          
@@ -150,9 +148,7 @@ public class GMailTest extends TestCase {
           wait.until(ExpectedConditions.elementToBeClickable(Social1));
           Social1.click();
           extentTest.log(LogStatus.INFO, "Click Social Tab");	
-          Thread.sleep(5000);
-          List<WebElement> inboxEmails = wait.until(ExpectedConditions.visibilityOfAllElements(driver.findElements(By.xpath("//*[@class='zA zE']"))));                   
-
+        
         
         
       
@@ -161,7 +157,7 @@ public class GMailTest extends TestCase {
             	  WebElement sTAR = webElement(properties.getProperty("NonStar"));
                   wait.until(ExpectedConditions.elementToBeClickable(sTAR));
                   sTAR.click();
-                  extentTest.log(LogStatus.PASS, "Star Clicked");
+                  extentTest.log(LogStatus.PASS, "Mark email as starred");
             	}
             	catch(org.openqa.selenium.StaleElementReferenceException ex)
             	{
@@ -186,22 +182,54 @@ public class GMailTest extends TestCase {
            Sub.click();//Always Clicks on the First Arrived Email
            extentTest.log(LogStatus.PASS, "Subject Verified");	
   	}
+        Thread.sleep(5000);
+      
+    	   WebElement label = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(@title,'with label Inbox')]")));  
         
+           wait.until(ExpectedConditions.elementToBeClickable(label));
+          String text=label.getText();
+          if(text.contains("Inbox")) { 
+        	  System.out.println("Pass");String
+    		  extentReportImage11=captureScreenShot(testCasename);
+    		  
+    		  extentTest.log(LogStatus.PASS, "Inbox Label Found"); extentTest.log(
+    		  LogStatus.INFO, "Snapshot : " +
+    		  extentTest.addScreenCapture(extentReportImage11));
+    		  
+    		  } else {
+    			  System.out.println("Fail");String extentReportImage11=captureScreenShot(testCasename);
+    		  
+				
+				  extentTest.log(LogStatus.FAIL, "Social Label Not Found"); extentTest.log(
+				 LogStatus.INFO, "Error Snapshot : " +
+				 extentTest.addScreenCapture(extentReportImage11));
+				
+    		  
+    		  }
+        
+
+       
+           
         WebElement VerifySub = webElement(properties.getProperty("VerifySub"));
         wait.until(ExpectedConditions.elementToBeClickable(VerifySub));
         String subject=VerifySub.getText();
         Assert.assertEquals(subject, emailSubject);
         extentTest.log(LogStatus.PASS, "Email Body Verified");	
+        System.out.println("run");
        
         WebElement SubBoy = webElement(properties.getProperty("SubBoy"));
         wait.until(ExpectedConditions.elementToBeClickable(SubBoy));
         String body=SubBoy.getText();
         Assert.assertEquals(body, emailBody);
-       
+        System.out.println("rr");
     	extentTest.log(LogStatus.INFO, "Browser closed");
 
 		
-      
+    	// close report.
+		extent.endTest(extentTest);
+
+		// writing everything to document.
+		extent.flush();
        
         Thread.sleep(10000);
     	}catch(Exception e)
@@ -217,11 +245,43 @@ public class GMailTest extends TestCase {
         
         
     }
+    public String captureScreenShot(String testCasename) {
+		String screenShotFilePath=null;
+		String x=null;
+		Random rand = new Random(); 
+		int rand_int1 = rand.nextInt(100000); 
+		try {	
+			
+			File scrFile =null;
+				scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+			
+		
+
+			String screenShotPah=System.getProperty("user.dir")
+					
+					+ "\\Report\\";
+
+			File fi= new File(screenShotPah);
+			if(!fi.exists()){
+				fi.mkdirs();
+			}
+			FileUtils.copyFile(scrFile, new File(screenShotPah+ testCasename+rand_int1+ ".png"));
+			screenShotFilePath="Screenshot:" + ""+testCasename+rand_int1+".png";
+
+			 x=screenShotPah+ testCasename+rand_int1+ ".png";
+			 System.out.println(x);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return x;
+	}
+	
+
     public void javascriptExecutorClick(String locator){
     	 WebDriverWait wait=new WebDriverWait(driver, 20); //Webdriverwait for Explicit Wait
     	    
     	 WebElement element=webElement(locator);
-    	//wait.until(ExpectedConditions.elementToBeClickable(element));
+    	wait.until(ExpectedConditions.elementToBeClickable(element));
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("arguments[0].click();",element );
 	}
